@@ -2,9 +2,10 @@ import asyncio
 from datetime import datetime, timedelta
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
+from app.core.config import settings
 
-MONGODB_URL = "mongodb://localhost:27017"
-DB_NAME = "buildgraph"
+MONGODB_URL = settings.MONGODB_URL
+DB_NAME = settings.MONGODB_DB_NAME
 
 
 async def seed_data():

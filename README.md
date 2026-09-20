@@ -1,6 +1,6 @@
 # BuildGraph AI — Connected Intelligence for Construction
 
-**Local-first AI, zero cloud costs.** Hackathon-ready construction project intelligence layer.
+Hackathon-ready construction project intelligence layer with a React dashboard, FastAPI backend, MongoDB storage, Groq chat, and local embeddings.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ FastAPI + Motor (Port 8000)
          ↓
 ┌─────────────────────────────────┐
 │  MongoDB (Local or Atlas)       │
-│  Ollama (Local LLM)             │
+│  Groq Chat API                  │
 │  FAISS + sentence-transformers  │
 └─────────────────────────────────┘
 ```
@@ -21,7 +21,7 @@ FastAPI + Motor (Port 8000)
 | Tool | Version | Purpose |
 |------|---------|---------|
 | MongoDB | 6.0+ | Database (local or Atlas) |
-| Ollama | Latest | Local LLM runtime |
+| Groq API Key | Optional | AI chat and explanations |
 | Python | 3.10+ | Backend |
 | Node.js | 18+ | Frontend |
 
@@ -31,23 +31,23 @@ FastAPI + Motor (Port 8000)
 ```cmd
 start.bat
 ```
-This launches MongoDB, Ollama, backend, and frontend in separate windows.
+This prepares the backend, seeds demo data, and launches backend and frontend in separate windows.
 
 ### Option 2: Manual Steps
 
-**1. Start MongoDB**
+**1. Configure environment**
+```cmd
+cd backend
+copy .env.example .env
+```
+Edit `backend\.env` if you want MongoDB Atlas or Groq AI responses. The default MongoDB URL uses local MongoDB.
+
+**2. Start MongoDB**
 ```cmd
 # If installed as service
 net start MongoDB
 
-# Or run manually
-mongod --dbpath C:\data\db
-```
-
-**2. Start Ollama**
-```cmd
-ollama pull qwen2.5:3b
-ollama serve
+# Or use MongoDB Atlas by setting MONGODB_URL in backend\.env
 ```
 
 **3. Backend**
@@ -82,6 +82,8 @@ Edit `backend/.env`:
 ```env
 MONGODB_URL=mongodb+srv://<user>:<pass>@cluster.mongodb.net/buildgraph?retryWrites=true&w=majority
 MONGODB_DB_NAME=buildgraph
+GROQ_API_KEY=<optional-groq-api-key>
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 No code changes needed — config reads from environment.
 
@@ -125,7 +127,7 @@ BuildGraphAI/
 │   │   └── context/       # Auth
 │   └── package.json
 ├── start.bat / start.ps1
-└── .env.example
+└── backend/.env.example
 ```
 
 ## Key Features
@@ -135,16 +137,16 @@ BuildGraphAI/
 - **Impact Simulator** — What-if delay propagation
 - **Data Trust Engine** — Auto-detects progress conflicts
 - **Project Memory** — Decision log with AI Q&A
-- **Local AI** — Ollama + FAISS (no API keys)
+- **AI Assistance** — Groq chat + FAISS-backed local embeddings
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
-| Ollama not responding | `ollama serve` running? Model pulled? |
 | MongoDB connection failed | Service running? Check `.env` URL |
-| Frontend build errors | `rm -rf node_modules && npm install` |
-| 8GB RAM | Use `ollama pull qwen2.5:1.5b` and update `.env` |
+| Frontend build errors | Delete `frontend/node_modules`, then run `npm install` |
+| Backend import errors | Re-run `pip install -r backend/requirements.txt` inside the backend venv |
+| AI answers unavailable | Set `GROQ_API_KEY` in `backend/.env`; non-AI fallback responses still work |
 
 ## License
 

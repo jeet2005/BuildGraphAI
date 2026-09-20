@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { decisionApi, aiApi } from '../utils/api'
-import { Search, BookOpen, Clock, Users, Tag, Filter, Loader2, ArrowLeft, Brain, MessageSquare } from 'lucide-react'
+import { Search, BookOpen, Clock, Users, Tag, Filter, Loader2, ArrowLeft, Brain, MessageSquare, AlertTriangle } from 'lucide-react'
 
 const decisionTypes = {
   procurement: { label: 'Procurement', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: Tag },
@@ -251,55 +251,55 @@ export default function ProjectMemory() {
 
           {selectedDecision && (
             <div className="card mt-6 border-primary-500/30 bg-primary-500/5 animate-slide-in">
-              <h3 className="text-lg font-semibold text-white mb-4">Decision Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-dark-400 text-sm">Title</p>
-                  <p className="text-white font-medium">{selectedDecision.title}</p>
-                </div>
-                <div>
-                  <p className="text-dark-400 text-sm">Description</p>
-                  <p className="text-dark-300">{selectedDecision.description}</p>
-                </div>
-                <div>
-                  <p className="text-dark-400 text-sm">Reason / Rationale</p>
-                  <p className="text-dark-300">{selectedDecision.reason}</p>
-                </div>
-                <div>
-                  <p className="text-dark-400 text-sm">Decision Type</p>
-                  <span className={`px-3 py-1 rounded text-sm font-medium ${decisionTypes[selectedDecision.decision_type]?.color || 'bg-dark-600 text-dark-300'}`}>
-                    {decisionTypes[selectedDecision.decision_type]?.label || selectedDecision.decision_type}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-dark-400 text-sm">Date</p>
-                  <p className="text-white">{formatDate(selectedDecision.date)}</p>
-                </div>
-                <div>
-                  <p className="text-dark-400 text-sm">People Involved</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDecision.people_involved?.map((person, pi) => (
-                      <span key={pi} className="px-3 py-1 bg-dark-800 rounded text-sm text-dark-300">
-                        {person}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {selectedDecision.related_entities && selectedDecision.related_entities.length > 0 && (
+                <h3 className="text-lg font-semibold text-white mb-4">Decision Details</h3>
+                <div className="space-y-4">
                   <div>
-                    <p className="text-dark-400 text-sm">Related Entities</p>
+                    <p className="text-dark-400 text-sm">Title</p>
+                    <p className="text-white font-medium">{selectedDecision.title}</p>
+                  </div>
+                  <div>
+                    <p className="text-dark-400 text-sm">Description</p>
+                    <p className="text-dark-300">{selectedDecision.description}</p>
+                  </div>
+                  <div>
+                    <p className="text-dark-400 text-sm">Reason / Rationale</p>
+                    <p className="text-dark-300">{selectedDecision.reason}</p>
+                  </div>
+                  <div>
+                    <p className="text-dark-400 text-sm">Decision Type</p>
+                    <span className={`px-3 py-1 rounded text-sm font-medium ${decisionTypes[selectedDecision.decision_type]?.color || 'bg-dark-600 text-dark-300'}`}>
+                      {decisionTypes[selectedDecision.decision_type]?.label || selectedDecision.decision_type}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-dark-400 text-sm">Date</p>
+                    <p className="text-white">{formatDate(selectedDecision.date)}</p>
+                  </div>
+                  <div>
+                    <p className="text-dark-400 text-sm">People Involved</p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedDecision.related_entities.map((entity, ei) => (
-                        <span key={ei} className="px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded text-sm text-primary-300">
-                          {entity.type}: {entity.name}
+                      {selectedDecision.people_involved?.map((person, pi) => (
+                        <span key={pi} className="px-3 py-1 bg-dark-800 rounded text-sm text-dark-300">
+                          {person}
                         </span>
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+                  {selectedDecision.related_entities && selectedDecision.related_entities.length > 0 && (
+                    <div>
+                      <p className="text-dark-400 text-sm">Related Entities</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedDecision.related_entities.map((entity, ei) => (
+                          <span key={ei} className="px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded text-sm text-primary-300">
+                            {entity.type}: {entity.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

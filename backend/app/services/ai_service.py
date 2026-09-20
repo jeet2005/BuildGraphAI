@@ -1,12 +1,11 @@
 import os
 import json
-import httpx
 import logging
 from typing import List, Dict, Any, Optional
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-import ollama
+from groq import Groq
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AIService:
     def __init__(self):
-        self.ollama_client = None
+        self.groq_client = None
         self.embedding_model = None
         self.faiss_index = None
         self.document_chunks = []
@@ -26,20 +25,17 @@ class AIService:
 
     def _initialize(self):
         try:
-            self.ollama_client = ollama.Client(host=settings.OLLAMA_HOST)
+            # Groq API
+            self.groq_client = Groq(api_key=settings.GROQ_API_KEY)
+            
+            # Local embeddings (no API needed)
             self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
-            logger.info("AI Service initialized successfully")
+            logger.info("AI Service initialized with Groq + local embeddings")
         except Exception as e:
             logger.warning(f"AI Service initialization failed: {e}")
 
     def is_available(self) -> bool:
-        try:
-            if self.ollama_client:
-                models = self.ollama_client.list()
-                return any(m.get('name', '').startswith(settings.OLLAMA_MODEL.split(':')[0]) for m in models.get('models', []))
-        except Exception:
-            pass
-        return False
+        return self.groq_client is not None and self.embedding_model is not None
 
     def get_embeddings(self, texts: List[str]) -> np.ndarray:
         if self.embedding_model:
@@ -82,8 +78,8 @@ class AIService:
         system_prompt: str = "",
         context: str = "",
         temperature: float = 0.3
-    ) -> str:
-        if not self.is_available():
+    ) -> Optional[str]:
+        if not self.groq_client:
             return None
 
         try:
@@ -94,14 +90,15 @@ class AIService:
                 messages.append({"role": "system", "content": f"Context: {context}"})
             messages.append({"role": "user", "content": prompt})
 
-            response = self.ollama_client.chat(
-                model=settings.OLLAMA_MODEL,
+            response = self.groq_client.chat.completions.create(
+                model="llama3-8b-8192",
                 messages=messages,
-                options={"temperature": temperature}
+                temperature=temperature,
+                max_tokens=1024
             )
-            return response.get("message", {}).get("content", "")
+            return response.choices[0].message.content
         except Exception as e:
-            logger.error(f"Ollama generation failed: {e}")
+            logger.error(f"Groq generation failed: {e}")
             return None
 
     async def classify_intent(self, question: str) -> Dict[str, Any]:
@@ -206,7 +203,7 @@ Return JSON only:
         if intent in ["DOCUMENT_SEARCH", "DECISION_MEMORY", "GENERAL"]:
             rag_results = self.search_documents(question, top_k=3)
             if rag_results:
-                rag_context = "\n".join([r["text"][:500] for r in rag_context])
+                rag_context = "\n".join([r["text"][:500] for r in rag_results])
 
         system_prompt = self._get_system_prompt(role, intent)
         full_context = f"{context}\n\n{rag_context}".strip()

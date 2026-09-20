@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { simulationApi, entityApi } from '../utils/api'
 import { AlertTriangle, TrendingUp, TrendingDown, Users, Target, Loader2, Zap, Package, Building2, RotateCcw } from 'lucide-react'
-import ReactFlow, { Background, Controls, MiniMap, NodeTypes, EdgeTypes, useNodesState, useEdgesState } from '@xyflow/react'
+import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
 const typeStyles = {

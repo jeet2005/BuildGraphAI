@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.core.database import get_database
 from app.models.schemas import Project
-from app.models.responses import Project as ProjectResponse
+from app.models.schemas import Project as ProjectResponse
 
 router = APIRouter()
 

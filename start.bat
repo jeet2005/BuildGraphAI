@@ -1,4 +1,6 @@
 @echo off
+setlocal
+
 echo ========================================
 echo BuildGraph AI - Hackathon Demo Launcher
 echo ========================================
@@ -6,82 +8,80 @@ echo.
 
 echo [1/4] Checking prerequisites...
 
-where mongod >nul 2>nul
-if %errorlevel% neq 0 (
-    echo WARNING: MongoDB not found in PATH
-    echo Please ensure MongoDB is installed and running on port 27017
-) else (
-    echo OK: MongoDB found
-)
-
-where ollama >nul 2>nul
-if %errorlevel% neq 0 (
-    echo WARNING: Ollama not found in PATH
-    echo Please install from https://ollama.ai and run: ollama pull qwen2.5:3b
-) else (
-    echo OK: Ollama found
-)
-
 where python >nul 2>nul
 if %errorlevel% neq 0 (
-    echo ERROR: Python not found
+    echo [ERROR] Python 3.10+ not found
     pause
     exit /b 1
-) else (
-    echo OK: Python found
 )
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo ERROR: Node.js not found
+    echo [ERROR] Node.js 18+ not found
     pause
     exit /b 1
-) else (
-    echo OK: Node.js found
 )
 
+echo [OK] Python and Node.js found
 echo.
-echo [2/4] Starting MongoDB...
-net start MongoDB >nul 2>nul
-if %errorlevel% equ 0 (
-    echo OK: MongoDB started
-) else (
-    echo INFO: MongoDB may already be running
+
+echo [2/4] Preparing backend...
+cd /d "%~dp0backend"
+
+if not exist ".env" (
+    echo [INFO] Creating backend\.env from backend\.env.example
+    copy ".env.example" ".env" >nul
+    echo [INFO] Edit backend\.env to set MongoDB Atlas or GROQ_API_KEY values if needed.
 )
 
-echo.
-echo [3/4] Starting Ollama...
-start /B ollama serve >nul 2>nul
-timeout /t 3 >nul
-ollama list | findstr qwen2.5:3b >nul
+if not exist "venv" (
+    echo [INFO] Creating Python virtual environment...
+    python -m venv venv
+)
+
+call venv\Scripts\activate.bat
+echo [INFO] Installing backend dependencies...
+pip install -r requirements.txt
 if %errorlevel% neq 0 (
-    echo WARNING: qwen2.5:3b model not found
-    echo Pulling model (this may take a few minutes)...
-    ollama pull qwen2.5:3b
-) else (
-    echo OK: Model qwen2.5:3b available
+    echo [ERROR] Backend dependency install failed
+    pause
+    exit /b 1
 )
 
+echo [3/4] Seeding demo data...
+python seed_data.py
+if %errorlevel% neq 0 (
+    echo [ERROR] Database seed failed. Check MONGODB_URL in backend\.env.
+    pause
+    exit /b 1
+)
+
+echo [INFO] Starting backend on http://localhost:8000
+start "BuildGraph Backend" cmd /k "cd /d "%~dp0backend" && call venv\Scripts\activate.bat && uvicorn app.main:app --port 8000"
+
 echo.
-echo [4/4] Starting Backend & Frontend...
+echo [4/4] Starting frontend...
+cd /d "%~dp0frontend"
+
+if not exist "node_modules" (
+    echo [INFO] Installing frontend dependencies...
+    npm install
+    if %errorlevel% neq 0 (
+        echo [ERROR] Frontend dependency install failed
+        pause
+        exit /b 1
+    )
+)
+
+start "BuildGraph Frontend" cmd /k "cd /d "%~dp0frontend" && npm run dev"
+
 echo.
-echo Backend will run on: http://localhost:8000
-echo Frontend will run on: http://localhost:5173
+echo ========================================
+echo Services launching
+echo ========================================
+echo Frontend: http://localhost:5173
+echo Backend:  http://localhost:8000
 echo API Docs: http://localhost:8000/docs
 echo.
-echo Press Ctrl+C to stop all services
-echo.
-
-cd backend
-call venv\Scripts\activate.bat 2>nul || python -m venv venv && call venv\Scripts\activate.bat && pip install -r requirements.txt
-python seed_data.py
-start "BuildGraph Backend" cmd /k "uvicorn app.main:app --reload --port 8000"
-
-cd ..\frontend
-if not exist node_modules npm install
-start "BuildGraph Frontend" cmd /k "npm run dev"
-
-echo.
-echo Both services starting in separate windows...
-echo Wait a few seconds then open http://localhost:5173
+echo Keep the service windows open while demoing.
 pause

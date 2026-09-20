@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { graphApi, entityApi } from '../utils/api'
-import ReactFlow, { Background, Controls, MiniMap, NodeTypes, EdgeTypes, useNodesState, useEdgesState, addEdge, Connection } from '@xyflow/react'
+import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge } from '@xyflow/react'
 import { Search, Target, ZoomIn, ZoomOut, RotateCcw, Info, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import '@xyflow/react/dist/style.css'
 import NodePanel from '../components/NodePanel'
@@ -112,7 +112,7 @@ export default function ProjectGraph() {
     fetchGraph()
   }, [fetchGraph])
 
-  const onConnect = useCallback((params: Connection) => {
+  const onConnect = useCallback((params) => {
     setEdges(eds => addEdge({ ...params, type: 'smoothstep', animated: true }, eds))
   }, [setEdges])
 

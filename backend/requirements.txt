@@ -5,11 +5,8 @@ pydantic-settings==2.1.0
 motor==3.3.2
 pymongo==4.6.1
 python-dotenv==1.0.0
-httpx==0.26.0
-ollama==0.3.1
-sentence-transformers==2.2.2
-faiss-cpu==1.7.4
-numpy==1.26.3
+httpx==0.27.0
+groq==0.4.1
 pandas==2.1.4
 PyMuPDF==1.23.12
 openpyxl==3.1.2
@@ -17,3 +14,5 @@ python-multipart==0.0.6
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 email-validator==2.1.0.post1
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0.post1

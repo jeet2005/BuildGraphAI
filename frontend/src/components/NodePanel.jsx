@@ -273,7 +273,7 @@ export default function NodePanel({ node, onClose }) {
                           </span>
                         </div>
                       </div>
-                    )
+                    ) : null
                   })()}
                 </div>
               </div>
